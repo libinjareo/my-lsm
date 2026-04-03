@@ -53,4 +53,8 @@ impl Wal {
             ))),
         })
     }
+
+    // pub fn put(&self,key:KeySlice,value:&[u8]) -> Result<()> {
+    //     todo!()
+    // }
 }
