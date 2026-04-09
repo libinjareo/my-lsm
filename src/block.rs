@@ -1,6 +1,8 @@
 mod iterator;
+mod builder;
 
 use bytes::{Buf, BufMut, Bytes};
+pub use iterator::BlockIterator;
 
 pub(crate) const SIZEOF_U16: usize = std::mem::size_of::<u16>();
 
@@ -22,21 +24,21 @@ pub(crate) const SIZEOF_U16: usize = std::mem::size_of::<u16>();
 /// * `Block.data` 顺序存储所有条目。
 /// * `Block.offsets` 存储每个条目的起始偏移量。
 pub struct Block {
-    // 连续存放所有键值对的数据区域,将所有键值对的编码(例如 key_len+key+value_len+value) 顺序拼接到一起的字节缓冲区
+    /// 连续存放所有键值对的数据区域,将所有键值对的编码(例如 key_len+key+value_len+value) 顺序拼接到一起的字节缓冲区
     pub(crate) data: Vec<u8>,
-    // 每个键值对在 data 中的起始偏移量，每个条目在data中的起始偏移位置（字节索引），类型为u16，
-    // 暗示单个Block的大小被限制在64KB以内。符合LSM树常见的设计（如 LevelDB 的 4KiB~32KiB 块）
+    /// 每个键值对在 data 中的起始偏移量，每个条目在data中的起始偏移位置（字节索引），类型为u16，
+    /// 暗示单个Block的大小被限制在64KB以内。符合LSM树常见的设计（如 LevelDB 的 4KiB~32KiB 块）
     pub(crate) offsets: Vec<u16>,
 }
 
 impl Block {
-    // 编码格式
-    // 最终磁盘布局（从文件头到文件尾）
-    // 数据区(data)->长度 self.data.len() 字节
-    // 偏移量数组-> 长度：2 * offsets.len() 字节
-    // 偏移量数量（元素数）-> 长度：2 （u16）
-    // 这种格式支持二分查找：首先读取最后的 u16 获得条目数量 N,然后通过索引倒推出偏移量数组的位置，
-    // 进而读取任意偏移量，再定位到 data 中国年的对应键值对。
+    /// 编码格式
+    /// 最终磁盘布局（从文件头到文件尾）
+    /// 数据区(data)->长度 self.data.len() 字节
+    /// 偏移量数组-> 长度：2 * offsets.len() 字节
+    /// 偏移量数量（元素数）-> 长度：2 （u16）
+    /// 这种格式支持二分查找：首先读取最后的 u16 获得条目数量 N,然后通过索引倒推出偏移量数组的位置，
+    /// 进而读取任意偏移量，再定位到 data 中国年的对应键值对。
     pub fn encode(&self) -> Bytes {
         let mut buf = self.data.clone(); // 先拷贝数据区
         let offsets_len = self.offsets.len();

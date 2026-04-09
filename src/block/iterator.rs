@@ -48,21 +48,21 @@ impl BlockIterator {
         }
     }
 
-    // 创建迭代器并定位到第一个条目
+    /// 创建迭代器并定位到第一个条目
     pub fn create_and_seek_to_first(block: Arc<Block>) -> Self {
         let mut iter = Self::new(block);
         iter.seek_to_first();
         iter
     }
 
-    // 创建迭代器并定位到第一个 >= key 的条目
+    /// 创建迭代器并定位到第一个 >= key 的条目
     pub fn create_and_seek_to_key(block: Arc<Block>, key: KeySlice) -> Self {
         let mut iter = Self::new(block);
         iter.seek_to_key(key);
         iter
     }
 
-    // 获取当前条目的key
+    /// 获取当前条目的key
     pub fn key(&self) -> KeySlice {
         debug_assert!(!self.key.is_empty(), "invalid iterator");
         self.key.as_key_slice()
@@ -74,7 +74,7 @@ impl BlockIterator {
         &self.block.data[self.value_range.0..self.value_range.1]
     }
 
-    // 判断迭代器是否有效
+    /// 判断迭代器是否有效
     pub fn is_valid(&self) -> bool {
         !self.key.is_empty()
     }
@@ -93,7 +93,7 @@ impl BlockIterator {
         self.idx = idx;
     }
 
-    // 移动到下一个条目
+    /// 移动到下一个条目
     pub fn next(&mut self) {
         self.idx += 1;
         self.seek_to(self.idx);
@@ -142,7 +142,7 @@ impl BlockIterator {
         entry.advance(value_len);
     }
 
-    // 二分查找定位到第一个 >= key的条目
+    /// 二分查找定位到第一个 >= key的条目
     pub fn seek_to_key(&mut self, key: KeySlice) {
         let mut low: usize = 0;
         let mut high: usize = self.block.offsets.len();

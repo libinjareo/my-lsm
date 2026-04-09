@@ -1,2 +1,11 @@
 /target
-.idea
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/shelf/
+.idea/vcs.xml
+.idea/modules.xml
+.idea/*.iml
+.idea/dictionaries/
+.idea/*.log
+.idea/*.iws
+.idea/contentModel.xml
